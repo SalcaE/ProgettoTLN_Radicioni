@@ -15,39 +15,39 @@ def max_depth():
     return depth
 
 def get_hypernyms(synset):
-    path = set()
+    path = []
     if not synset.hypernyms():
         return path
-    path.update(synset.hypernyms())
+    path = synset.hypernyms()
     for s in synset.hypernyms():
-        path.update(get_hypernyms(s))
+        path = path + get_hypernyms(s)
     return path
 
 def lcs(s1, s2):
+    #DEL CASO DA AGGIUNGERE TE STESSO (TIGER / TIGER)
     common_hyp = []
     hyp1 = get_hypernyms(s1)
     hyp2 = get_hypernyms(s2)
-    common_hyp = list(hyp1.intersection(hyp2))
-    return common_hyp 
+    common_hyp = [a for a in list(hyp1) if a in list(hyp2)]
+    return common_hyp
 
 def dist_path(syn, root, dist):
     count = 0
     if syn == root or syn.hypernyms() == 0:
         return dist
-
     for next in syn.hypernyms():
         tmp = dist_path(next, root, dist + 1)
         if (tmp < count or count == 0):
             count = tmp 
-    return tmp
+    return count
 
-def depth(syn):
+def depth(s):
     depth = 0
-    while(len(syn.hypernyms()) != 0 and syn != syn.root_hypernyms()[0]):
+    next_hyper = s
+    while(next_hyper != s.root_hypernyms()[0] and len(next_hyper.hypernyms())!=0):
         depth += 1
-        syn = syn.hypernyms()[0]
+        next_hyper = next_hyper.hypernyms()[0]
     return depth
-
 
 def wu_palmer(s1, s2):
     lcs_res = lcs(s1, s2)
@@ -71,6 +71,15 @@ def shortest_path(s1, s2):
     else:
         return 2*max_depth
 
+def leakcock_chodorow(s1, s2):
+    intersection = lcs(s1,s2)
+    if len(intersection) != 0:
+        length = dist_path(s1, intersection[0], 0) + dist_path(s2, intersection[0], 0)
+        if length != 0:
+            return -math.log(length/(2*max_depth))
+        return -math.log(length+1/(2*max_depth+1))
+    return 0
+
 def terms_similarity(w1, w2):
     syn1 = wn.synsets(w1)
     syn2 = wn.synsets(w2)
@@ -78,11 +87,11 @@ def terms_similarity(w1, w2):
     sim = 0
     for s1 in syn1:
         for s2 in syn2:
-            sim = wu_palmer(s1, s2)
+            sim = leakcock_chodorow(s1, s2)
             if sim>max:
                 max = sim
+    print(w1, w2, max)
     return max
-
 
 max_depth = max_depth()
 for i in range(len(df)):
