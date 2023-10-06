@@ -1,6 +1,5 @@
 import pandas as pd
 from nltk.corpus import wordnet as wn
-from itertools import product
 import math
 
 df = pd.read_csv("Esercizio1\WordSim353\WordSim353.csv")
@@ -83,16 +82,56 @@ def leakcock_chodorow(s1, s2):
 def terms_similarity(w1, w2):
     syn1 = wn.synsets(w1)
     syn2 = wn.synsets(w2)
-    max = 0
-    sim = 0
+    scores_wu_palmer = []
+    scores_shortest_path = []
+    scores_leakcock_chodorow = []
+
+    if not syn1 or not syn2:
+        return 0,0,0
+    
     for s1 in syn1:
         for s2 in syn2:
-            sim = leakcock_chodorow(s1, s2)
-            if sim>max:
-                max = sim
-    print(w1, w2, max)
-    return max
+            scores_wu_palmer.append(wu_palmer(s1, s2))
+            scores_shortest_path.append(shortest_path(s1, s2))
+            scores_leakcock_chodorow.append(leakcock_chodorow(s1, s2))
+    return max(scores_wu_palmer), max(scores_shortest_path), max(scores_leakcock_chodorow)
 
 max_depth = max_depth()
-for i in range(len(df)):
-    terms_similarity(df.iloc[i][0], df.iloc[i][1])
+
+def main ():
+    res_wu_palmer = []
+    res_shortest_path = []
+    res_leakcock_chodorow = []
+    for i in range(len(df)):
+        scores = terms_similarity(df.iloc[i][0], df.iloc[i][1])
+        res_wu_palmer.append(scores[0])
+        res_shortest_path.append(scores[1])
+        res_leakcock_chodorow.append(scores[2])
+
+    df['wu_palmer'] = res_wu_palmer
+    df['shortest_path'] = res_shortest_path
+    df['leakcock_chodorow'] = res_leakcock_chodorow
+
+    print(df)
+    print()
+    print("Wu & Palmer pearson correlation coefficient")
+    print(df['Human (mean)'].corr(df['wu_palmer'], method='pearson'))
+
+    print("Wu & Palmer spearman correlation coefficient")
+    print(df['Human (mean)'].corr(df['wu_palmer'], method='spearman'))
+    print()
+    print("Shortest path pearson correlation coefficient")
+    print(df['Human (mean)'].corr(df['shortest_path'], method='pearson'))
+
+    print("Shortest path spearman correlation coefficient")
+    print(df['Human (mean)'].corr(df['shortest_path'], method='spearman'))
+    print()
+    print("Leakcock Chodorow pearson correlation coefficient")
+    print(df['Human (mean)'].corr(df['leakcock_chodorow'], method='pearson'))
+
+    print("Leakcock Chodorow spearman correlation coefficient")
+    print(df['Human (mean)'].corr(df['leakcock_chodorow'], method='spearman'))
+
+if __name__ == "__main__":
+    main()
+   
