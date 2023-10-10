@@ -72,7 +72,8 @@ def normal_run():
 
 def random_run():
     sentences = semcor.sents() # prende le prime 50 frasi da semcor         len(semcor.sents())
-    indexes = np.random.randint(0, 200, 50)
+    print(len(semcor.sents()))
+    indexes = np.random.randint(0, 37176, 50) #37176
     accuracy = 0
 
     for i in indexes:
@@ -83,33 +84,22 @@ def random_run():
         words = [t for t in pos_sentences if t.label() == 'NN']
         word = None
         gold = None
-        print("\n")
-        print("///////")
-        print(pos_sentences)
-        print("----------")
-        print(sem_sentences)
+        best_sense=None
+       
         for i, elem in enumerate(words):
             if elem:
-                print("ELEMENTO", elem.leaves()[0])
                 tmp = [t.label() for t in sem_sentences if type(t)!= list and t[0] == elem.leaves()[0]]
-                if len(tmp) > 0:
+                if len(tmp) > 0:      
                     gold = tmp[0]
                     word = elem
                     break
-        #print("Frase da semcor: ")
-        #print(sentence)
-        #print("Parola da disambiguare: ")
-        #print(word.leaves()[0])
-        #print("Elaborazione lesk ")
+       
         if word:
             best_sense = lesk(word.leaves()[0].lower(), sentence)
-            print("BEST SES = ", best_sense)
-            print("GOLD = ", gold)
-
-        if best_sense and gold and str(best_sense.lemmas()[0]) == str(gold):
+            
+        if  best_sense and gold and str(best_sense.lemmas()[0]) == str(gold):
             accuracy += 1
-        print("///////")
-
+            
     print('Accuracy: ' + str(accuracy/50))
 
 def main():
