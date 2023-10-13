@@ -121,6 +121,7 @@ def score(syn_el, ctx_el):
             print(paths)
             for path in paths:
                 res += np.exp(-len(path)-1)
+                print(paths)
 
     return res
 
@@ -133,11 +134,14 @@ def prob(syn_el, element, ctx_el):
 
     return score(syn_el, ctx_el) / sum
   
-def argmax_prob(element, ctx_el):
+def approccio_grafico(element, ctx_el):
     max_prob = 0
     max_syn = None
     for syn in wn.synsets(element):  #synset sull'elment/frame principale
         prob_syn = prob(syn, element, ctx_el)
+
+
+
         if prob_syn > max_prob:
             max_prob = prob_syn
             max_syn = syn
@@ -173,7 +177,7 @@ def getData():
         #syn_gold_frame=data[data['ID']== frame.ID]['Syn']
         #score = calculate_score(res_syn_frame,syn_gold_frame,score)
 
-        argmax_prob(frame.name, context_frame)
+        approccio_grafico(frame.name, context_frame)
         
         '''for key,el in frame.FE.items():
             context_fe = ctx_fe(el)
