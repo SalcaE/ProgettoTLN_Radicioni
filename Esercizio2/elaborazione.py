@@ -8,13 +8,13 @@ import re
 def ctx_frame(frame):
     definition = frame.definition
     sentence= ''
-    for key, fe in frame.FE.items():
+    for key, fe in frame.FE.items(): 
         sentence += ' ' + fe.definition
 
     for key, lu in frame.lexUnit.items():
         sentence += ' ' + lu.definition    
     
-    return elaboration_def(definition+sentence+frame.name)
+    return elaboration_def(definition+sentence+frame.name) #metto insieme definizioni fe/lu + def del frame
 
 def ctx_fe(fe_element):
 
@@ -57,7 +57,7 @@ def bag_of_words(element,contex_fe):
     max_intersection = 0
     best_syn = None
     for syn in syns:
-        tmp = len(ctx_wn(syn).intersection(contex_fe)) + 1
+        tmp = len(ctx_wn(syn).intersection(contex_fe)) + 1 #intersezione tra contesto del sysnset (del frame) a confronto con il contesto del frame
         if tmp > max_intersection:
             max_intersection = tmp
             best_syn = syn
@@ -96,7 +96,7 @@ def path_search(synset_w,syn_el, path, paths):
     
     if  len(tmp) >= 3:
         return
-    
+    #la ricerca degli ipo/iper va su e giù
     for hypernym in synset_w.hypernyms():
         path_search(hypernym,syn_el, tmp, paths)
     for hyponym in synset_w.hyponyms():
@@ -109,11 +109,11 @@ def getScore(syn_el, ctx_el):
     for word in ctx_el:   #prendo token definizione
         for syn_w in wn.synsets(word):
            
-            paths = path_search(syn_w, syn_el,[],[])
+            paths = path_search(syn_w, syn_el,[],[])#estraggo i percorsi massimo lunghi 3 da syn_w --> syn_el
            
             if paths:   #se trova un percorso
                 for path in paths:
-                    res += np.exp(-len(path)-1)
+                    res += np.exp(-len(path)-1) #formula esponenziale
     return res
   
 def approccio_grafico(element, ctx_el):
@@ -121,11 +121,11 @@ def approccio_grafico(element, ctx_el):
     max_score = 0 
     res = 0
    
-    for syn in wn.synsets(element):  #synset sull'elment/frame principale
+    for syn in wn.synsets(element):  #synset sull'elment/frame principale  (crediamo: doppio for uguale per l'insieme delle sommatorie)
         sum = 0
 
         for syn2 in wn.synsets(element): #riscorre..
-            sum += getScore(syn2,ctx_el)
+            sum += getScore(syn2,ctx_el) #--> score(s',w')
 
         if sum > 0:
             res = getScore(syn, ctx_el) / sum # score(s,w)/score(s',w')
@@ -138,16 +138,16 @@ def approccio_grafico(element, ctx_el):
 
 def getData(algo_type):
     data = pd.read_csv("Esercizio2\\annotation.csv")
-    frames=[1604,1916,2284,221,2131,2046,269,2940,2430,1919]
+    frames=[1604,1916,2284,221,2131,2046,269,2940,2430,1919] #id dei frame nel csv
     
     score = 0
-    tot = 0
+    tot = 0 # conta quante volte fai il for esterno
     
     for frame_id in frames:
         tot = tot+1
-        frame= fn.frame_by_id(frame_id)
-        context_frame = ctx_frame(frame)
-        syn_gold_frame=data[data['ID']== frame.ID]['Syn']
+        frame= fn.frame_by_id(frame_id) #estraggo il frame al giusto id
+        context_frame = ctx_frame(frame)#prendiamo il contesto del frame (definizione+fe+lu)
+        syn_gold_frame=data[data['ID']== frame.ID]['Syn']#il sysnset scelto da noi che vorremmo uscisse dai 2 metodi
 
         if algo_type == 'bag_of_words':
             res_syn_frame= bag_of_words(frame.name,context_frame)
@@ -158,7 +158,7 @@ def getData(algo_type):
        
         for key,el in frame.FE.items():
             tot = tot+1
-            context_fe = ctx_fe(el)
+            context_fe = ctx_fe(el) #contesto dedicato
             syn_gold=data[data['ID']== el.ID]['Syn']
             
             if algo_type == 'bag_of_words':
@@ -170,7 +170,7 @@ def getData(algo_type):
         
         for key,el in frame.lexUnit.items():
             tot = tot+1
-            context_lu = ctx_lu(el)
+            context_lu = ctx_lu(el) #contesto dedicato
             syn_gold=data[data['ID']== el.ID]['Syn']
 
             if algo_type == 'bag_of_words':
@@ -184,7 +184,7 @@ def getData(algo_type):
 
 
 def main():
-    score = getData('cazzo ')
+    score = getData('bag_of_words ')
     print(score)
 
 if __name__ == '__main__':

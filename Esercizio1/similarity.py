@@ -2,7 +2,7 @@ import pandas as pd
 from nltk.corpus import wordnet as wn
 import math
 
-df = pd.read_csv("Esercizio1\WordSim353\WordSim353.csv")
+
 
 def max_depth():
     depth = 0
@@ -49,23 +49,23 @@ def depth(s):
     return depth
 
 def wu_palmer(s1, s2):
-    lcs_res = lcs(s1, s2)
+    lcs_res = lcs(s1, s2) # restituisce gli iperonimi in comune tra i 2 synset
     depth_lcs = 0
 
     if len(lcs_res) != 0:
-        depth_lcs = depth(lcs_res[0])
+        depth_lcs = depth(lcs_res[0])#passiamo sempre solo il primo iperonimo, calcola la distanza tra l'iperonimo(in comune) e la radice
 
-    depth_s1 = depth(s1)
-    depth_s2 = depth(s2)
+    depth_s1 = depth(s1) #calcolo distanza daal synset alla radice base degli iperonimi
+    depth_s2 = depth(s2)# //
 
     if depth_s1 != 0 and depth_s2 != 0:
-        return (2*depth_lcs)/(depth_s1 + depth_s2)
+        return (2*depth_lcs)/(depth_s1 + depth_s2) # formula wu palmer
     return 0
 
 def shortest_path(s1, s2):
     intersection = lcs(s1,s2)
     if len(intersection) > 0:
-        length = dist_path(s1, intersection[0], 0) + dist_path(s2, intersection[0], 0)
+        length = dist_path(s1, intersection[0], 0) + dist_path(s2, intersection[0], 0) #dist_path conta distanza più corta per arrivare dal syn alla iperonimo in comune 
         return 2*max_depth - length
     else:
         return 2*max_depth
@@ -75,7 +75,7 @@ def leakcock_chodorow(s1, s2):
     if len(intersection) != 0:
         length = dist_path(s1, intersection[0], 0) + dist_path(s2, intersection[0], 0)
         if length != 0:
-            return -math.log(length/(2*max_depth))
+            return -math.log(length/(2*max_depth)) #formule di leakcock
         return -math.log(length+1/(2*max_depth+1))
     return 0
 
@@ -94,11 +94,12 @@ def terms_similarity(w1, w2):
             scores_wu_palmer.append(wu_palmer(s1, s2))
             scores_shortest_path.append(shortest_path(s1, s2))
             scores_leakcock_chodorow.append(leakcock_chodorow(s1, s2))
-    return max(scores_wu_palmer), max(scores_shortest_path), max(scores_leakcock_chodorow)
+    return max(scores_wu_palmer), max(scores_shortest_path), max(scores_leakcock_chodorow)#valore massimo degli array
 
 max_depth = max_depth()
 
 def main ():
+    df = pd.read_csv("Esercizio1\WordSim353\WordSim353.csv")
     res_wu_palmer = []
     res_shortest_path = []
     res_leakcock_chodorow = []
