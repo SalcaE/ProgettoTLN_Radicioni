@@ -45,7 +45,6 @@ def compute_overlap(signature,context):
 
 def normal_run():
     sentences = semcor.sents()[:50] # prende le prime 50 frasi da semcor
-    sapo = len(semcor.sents())
     pos_sentences = semcor.tagged_sents(tag='pos')[:50]
     sem_sentences = semcor.tagged_sents(tag='sem')[:50]
 
@@ -56,13 +55,6 @@ def normal_run():
         word = [t for t in pos_sentences[i] if t.label() == 'NN'][0]
         gold = [t.label() for t in sem_sentences[i] if t[0] == word.leaves()[0]][0]
 
-        print("\n")
-        print("Frase da semcor: ")
-        print(sentence)
-        print("Parola da disambiguare: ")
-        print(word.leaves()[0])
-        print("Elaborazione lesk: ")
-
         best_sense = lesk(word.leaves()[0].lower(), sentence)
 
         if best_sense and gold and best_sense.lemmas()[0] == gold:
@@ -71,7 +63,6 @@ def normal_run():
     print('Accuracy: ' + str(accuracy/len(sentences)))
 
 def random_run():
-    sentences = semcor.sents() # prende le prime 50 frasi da semcor         len(semcor.sents())
     print(len(semcor.sents()))
     indexes = np.random.randint(0, 37176, 50) #37176
     accuracy = 0
