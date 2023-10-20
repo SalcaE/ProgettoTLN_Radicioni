@@ -63,17 +63,17 @@ def wu_palmer(s1, s2):
     return 0
 
 def shortest_path(s1, s2):
-    intersection = lcs(s1,s2)
-    if len(intersection) > 0:
-        length = dist_path(s1, intersection[0], 0) + dist_path(s2, intersection[0], 0) #dist_path conta distanza più corta per arrivare dal syn alla iperonimo in comune 
+    lcs_res = lcs(s1,s2)
+    if len(lcs_res) > 0:
+        length = dist_path(s1, lcs_res[0], 0) + dist_path(s2, lcs_res[0], 0) #dist_path conta distanza più corta per arrivare dal syn alla iperonimo in comune 
         return 2*max_depth - length
     else:
         return 2*max_depth
 
 def leakcock_chodorow(s1, s2):
-    intersection = lcs(s1,s2)
-    if len(intersection) != 0:
-        length = dist_path(s1, intersection[0], 0) + dist_path(s2, intersection[0], 0)
+    lcs_res = lcs(s1,s2)
+    if len(lcs_res) != 0:
+        length = dist_path(s1, lcs_res[0], 0) + dist_path(s2, lcs_res[0], 0)
         if length != 0:
             return -math.log(length/(2*max_depth)) #formule di leakcock
         return -math.log(length+1/(2*max_depth+1))
